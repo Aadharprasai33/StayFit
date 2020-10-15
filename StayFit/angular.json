@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "StayFit"
+    }
+  },
+  "defaultProject": "StayFit",
+  "cli": {
+    "analytics": "de2b4b87-c380-4e63-99dd-b6f980db7f00"
+  }
 }
