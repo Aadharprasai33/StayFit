@@ -9,19 +9,27 @@ import { SignupComponent } from './auth/signup/signup.component';
 import { TrainingComponent } from './training/training.component';
 import { NewTrainingComponent } from './training/new-training/new-training.component';
 import { PastTrainingComponent } from './training/past-training/past-training.component';
+import { CurrentTrainingComponent } from './training/current-training/current-training.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { LoginComponent } from './auth/login/login.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {StopTrainingComponent} from './training/stop-training/stop-training.component';
+import { HeaderComponent } from './navigation/header/header.component';
+import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SignupComponent,
     TrainingComponent,
+    CurrentTrainingComponent,
     NewTrainingComponent,
     PastTrainingComponent,
     WelcomeComponent,
     LoginComponent,
+    HeaderComponent,
+    SidenavListComponent,
+    StopTrainingComponent
   ],
   imports: [
     BrowserModule,
@@ -32,6 +40,7 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     FormsModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents:[StopTrainingComponent]
 })
 export class AppModule { }
