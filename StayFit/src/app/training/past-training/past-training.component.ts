@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatSort} from '@angular/material/sort';
 import {MatPaginator} from '@angular/material/paginator';
-
+import {Subscription} from 'rxjs/Subscription';
 
 import {Exercise} from '../exercise.model';
 import {TrainingService} from '../training.service';
@@ -13,16 +13,33 @@ import {TrainingService} from '../training.service';
   styleUrls: ['./past-training.component.css']
 })
 
-export class PastTrainingComponent implements OnInit, AfterViewInit {
+export class PastTrainingComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedColumns = ['date','name','duration','calories','state']
   dataSource = new MatTableDataSource<Exercise>();
+  public check: number = 0;
+  currentUser:any;
+  private exChangedSubsription: Subscription;
   
   @ViewChild(MatSort) sort:MatSort;
    @ViewChild(MatPaginator) paginator:MatPaginator;
-  constructor(private trainingService : TrainingService) { }
+  constructor(private trainingService : TrainingService) {
 
-  ngOnInit(): void {
-    this.dataSource.data = this.trainingService.getCompletedOrCancelledService();
+   }
+
+  ngOnInit(){
+    
+    
+    
+
+      this.exChangedSubsription = this.trainingService.finishedExercisesChanged.subscribe((exercises:Exercise[])=>{
+        console.log(localStorage.getItem('user'));
+        this.dataSource.data = exercises.filter(x=>x.userId == localStorage.getItem('user'));
+        console.log(this.dataSource.data);
+      });
+      this.trainingService.fetchedCompletedOrCancelledService();
+
+    
+    
   }
 
   ngAfterViewInit(){
@@ -32,5 +49,9 @@ export class PastTrainingComponent implements OnInit, AfterViewInit {
 
   doFilter(filterValue:string){
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  ngOnDestroy(){
+    this.exChangedSubsription.unsubscribe();
   }
 }

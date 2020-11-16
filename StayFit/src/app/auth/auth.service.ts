@@ -5,48 +5,73 @@ import { AuthData } from './auth-data.model';
 
 import { Injectable } from '@angular/core';
 import {Router} from '@angular/router';
+import {AngularFireAuth} from '@angular/fire/auth';
+import { TrainingService } from '../training/training.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Injectable()
 export class AuthService {
-    private user: User;
+    private isAuthenticated:boolean;
     authChange = new Subject<boolean>();
 
-    constructor(private router:Router){}
+    constructor(private router:Router, 
+        private auth:AngularFireAuth, 
+        private trainingService:TrainingService,
+        private _snackBar:MatSnackBar
 
-    registerUser(authData: AuthData) {
-        this.user = {
-            email: authData.email,
-            userId: Math.round(Math.random() * 10000).toString()
-        }
-        this.authSuccess();
-  
+        ){}
+
+    initAuthListener(){
+        this.auth.authState.subscribe(user=>{
+            if(user){
+                this.isAuthenticated=true;
+                this.authChange.next(true);
+                this.router.navigate(['./training']);
+            }
+            else{   
+                this.trainingService.cancelSubscriptions();
+                this.isAuthenticated=false;
+                this.authChange.next(false);
+                this.router.navigate(['./login']);
+            }
+        });
     }
-
+    registerUser(authData: AuthData) {
+      
+        this.auth.createUserWithEmailAndPassword(authData.email, authData.password)
+        .then(result=>{
+            console.log(result);
+        }).catch(err=>{
+            this._snackBar.open(err.message, null,
+                {duration:3000});
+        })
+    }
+    userDetails(user){
+         localStorage.setItem('user',user.uid);
+    }
     login(authData: AuthData) {
-        this.user = {
-            email: authData.email,
-            userId: Math.round(Math.random() * 10000).toString()
-        }
-        this.authChange.next(true);
-        this.authSuccess();
+  
+       this.auth.signInWithEmailAndPassword(authData.email,authData.password)
+       .then(result=>{
+        this.auth.authState.subscribe(user=>{
+            console.log('here',user);
+            this.userDetails(user);
+        });
+
+    }).catch(err=>{
+        this._snackBar.open(err.message, null,
+            {duration:3000});
+    })
     }
 
     logout() {
-        this.user = null;
-        this.authChange.next(false);
-        this.router.navigate(['./login']);
-    }
-
-    getUser() {
-        return { ...this.user };
+        localStorage.clear();
+        this.auth.signOut();
     }
 
     isAuth() {
-        return this.user != null;
+        return this.isAuthenticated;
     }
 
-    private authSuccess () {
-        this.authChange.next(true);
-        this.router.navigate(['./training']);
-    }
+  
 }
